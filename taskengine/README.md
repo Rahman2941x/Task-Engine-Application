@@ -12,6 +12,8 @@ This application allows:
 * Tasks to be created, assigned, and tracked
 * Task priorities and statuses to be managed
 * Dynamic workflow where tasks progress based on updates
+* Supports **dependent task execution using tree structure**
+* Uses **Topological Sort + Priority Queue** to manage execution order and avoid circular dependencies
 
 The system is designed to simulate a **real-world task execution engine** using microservices architecture.
 
@@ -22,7 +24,7 @@ The system is designed to simulate a **real-world task execution engine** using 
 * **taskengine-api-gateway** → Entry point for all client requests
 * **taskengine-service-registry** → Eureka server for service discovery
 * **taskengine-project-service** → Handles project management
-* **taskengine-task-service** → Manages tasks, priorities, and status
+* **taskengine-task-service** → Manages tasks, priorities, dependencies, and execution flow
 * **taskengine-user-service** → Handles user data and mapping
 
 ---
@@ -60,10 +62,31 @@ taskengine-parent/
 * Track deadlines and active tasks
 * Fetch tasks based on filters
 
-### 🔹 User Management
+### 🔹 Task Dependency (Tree-Based Tasks)
 
-* Users linked with projects and tasks
-* Used for assignment and tracking
+* Supports hierarchical (parent-child) task structure
+* Tasks can depend on other tasks
+* A task can start only after its parent task is completed
+* Enables workflow execution similar to real-world systems
+
+**Example:**
+
+```
+Parent Task
+   ├── Sub Task 1
+   │     └── Child Task
+   └── Sub Task 2
+```
+
+### 🔹 Dependency Handling & Execution Engine
+
+* Uses **Topological Sorting** to determine valid task execution order
+* Prevents **circular dependencies (cycles)** in task graph
+* Combines **Priority Queue** to execute higher priority tasks first
+* Ensures both:
+
+    * Correct dependency order
+    * Optimal priority-based execution
 
 ---
 
@@ -73,13 +96,17 @@ taskengine-parent/
 2. Project is created
 3. Users are mapped to project
 4. Tasks are created under project
-5. Tasks are assigned priorities
-6. Tasks move through statuses
-7. Queries fetch:
+5. Tasks are linked as **dependent (graph structure)**
+6. System validates dependencies using **cycle detection**
+7. Tasks are ordered using **Topological Sort**
+8. Execution priority handled using **Priority Queue**
+9. Tasks move through statuses
+10. Queries fetch:
 
-    * Active tasks
-    * Tasks by status
-    * Tasks with deadlines
+* Active tasks
+* Tasks by status
+* Tasks with deadlines
+* Dependent task hierarchy
 
 ---
 
@@ -98,7 +125,6 @@ taskengine-parent/
     * `ADMIN` → Full access (create, update, delete)
     * `USER` → Limited access (view and assigned tasks)
 * Endpoint-level restrictions applied using role checks
-* Ensures secure and controlled access to APIs
 
 ---
 
@@ -125,12 +151,26 @@ taskengine-parent/
 
 ## 📂 Key Code Highlights
 
-### 🔹 Priority Handling
+### 🔹 Priority Queue
 
 ```java
 queue = new PriorityQueue<>(
     (a, b) -> b.getPriority().compareTo(a.getPriority())
 );
+```
+
+### 🔹 Topological Sort (Concept)
+
+```java
+// Kahn’s Algorithm (simplified)
+Queue<Task> q = new LinkedList<>();
+while (!q.isEmpty()) {
+    Task t = q.poll();
+    for (Task dependent : t.getChildren()) {
+        reduceIndegree(dependent);
+        if (indegree == 0) q.add(dependent);
+    }
+}
 ```
 
 ### 🔹 Custom Query
@@ -143,7 +183,7 @@ List<Task> findByIsActiveTrueAndStatusNotIn(TaskStatus status1, TaskStatus statu
 
 Automatically attaches:
 
-```http
+```
 Authorization: Bearer <token>
 ```
 
@@ -159,7 +199,7 @@ Authorization: Bearer <token>
     * Other services
 3. Run each service:
 
-```bash
+```
 mvn spring-boot:run
 ```
 
@@ -168,9 +208,11 @@ mvn spring-boot:run
 ## 🧠 Design Decisions
 
 * Used **PriorityQueue** for task prioritization
-* Avoided recursion in entity relationships
+* Implemented **Topological Sort** for dependency resolution
+* Prevented **circular dependencies using graph cycle detection**
+* Used **tree/graph-based structure** for task relationships
+* Avoided recursion issues in entity mapping
 * Used DTOs for clean API responses
-* Implemented dynamic queries using Spring Data JPA
 * Secured APIs using OAuth2 and RBAC
 
 ---
@@ -180,6 +222,7 @@ mvn spring-boot:run
 * Core features implemented
 * Microservices communication working
 * Security (OAuth2 + RBAC) integrated
+* Dependency management with cycle prevention implemented
 
 ---
 
@@ -188,7 +231,7 @@ mvn spring-boot:run
 * Notification system
 * Dashboard analytics
 * Real-time updates
-* Advanced reporting
+* Advanced workflow automation
 
 ---
 
@@ -200,4 +243,4 @@ mvn spring-boot:run
 
 ## 📌 Note
 
-This project demonstrates **real-world microservices architecture using Java and Spring Boot**, including secure service-to-service communication and role-based access control.
+This project demonstrates **real-world microservices architecture using Java and Spring Boot**, including secure service-to-service communication, role-based access control, and advanced task execution using graph-based dependency resolution.
