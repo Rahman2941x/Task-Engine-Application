@@ -1,0 +1,7 @@
+package com.taskengine.taskengine_task_service.model;
+
+public enum TaskPriority {
+    LOW,
+    MEDIUM,
+    HIGH
+}

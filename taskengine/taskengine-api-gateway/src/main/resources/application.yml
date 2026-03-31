@@ -1,0 +1,35 @@
+server:
+  port: 8090
+
+spring:
+  application:
+    name: taskengine-api-gateway
+
+  cloud:
+    gateway:
+      routes:
+        - id: user-service
+          uri: lb://taskengine-user-service
+          predicates:
+            - Path=/user/**
+
+        - id: auth-service
+          uri: lb://taskengine-user-service
+          predicates:
+             - Path=/auth/**
+
+        - id: task-service
+          uri: lb://taskengine-task-service
+          predicates:
+              - Path=/task/**
+
+        - id: project-service
+          uri: lb://taskengine-project-service
+          predicates:
+            - Path=/project/**
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: http://localhost:8080/auth/api/v1/.well-known/jwks.json
