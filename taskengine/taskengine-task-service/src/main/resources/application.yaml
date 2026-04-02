@@ -1,6 +1,11 @@
 server:
   port: 8081
 
+rabbitmq:
+  exchange: ${RABBITMQ_EXCHANGE}
+  queue: ${RABBITMQ_PROJECT_TASK_QUEUE}
+  routing-key: ${RABBITMQ_ROUTING_KEY}
+
 eureka:
   instance:
     prefer-ip-address: true

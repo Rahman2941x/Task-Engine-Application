@@ -1,6 +1,7 @@
 package com.taskengine.taskengine_task_service.service;
 
 import com.taskengine.taskengine_task_service.client.ProjectClient;
+import com.taskengine.taskengine_task_service.configuration.RabbitMqPropertiesConfig;
 import com.taskengine.taskengine_task_service.constant.Constant;
 import com.taskengine.taskengine_task_service.algorithm.TopologicalSortAlg;
 import com.taskengine.taskengine_task_service.client.UserClient;
@@ -14,8 +15,10 @@ import com.taskengine.taskengine_task_service.repository.TaskRepo;
 import com.taskengine.taskengine_task_service.utils.NullCheckUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -50,9 +53,26 @@ public class TaskService {
     @Autowired
     ProjectClient projectClient;
 
+    @Value("${RABBITMQ_EXCHANGE}")
+    private String exchange;
+
+    @Value("${RABBITMQ_PROJECT_TASK_QUEUE}")
+    private String queue;
+
+    @Value("${RABBITMQ_ROUTING_KEY}")
+    private String routingKey;
+
+    @Autowired
+    private RabbitTemplate rabbitTemplate;
+
+    @Autowired
+    private RabbitMqPropertiesConfig rabbit;
 
     private static final Logger logger=LoggerFactory.getLogger(TaskService.class);
 
+    public void send (TaskStatusDTO DtO){
+        rabbitTemplate.convertAndSend(DtO);
+    }
 
 
     public ResponseEntity<Page<Task>> getAllTaskDetails(int size, int page) {
@@ -551,6 +571,10 @@ public class TaskService {
         ProjectTaskResponse projectTaskResponse= new ProjectTaskResponse(projectTask,inValidTaskIds);
 
         return new ResponseDTO<>(HttpStatus.OK.value(),projectTaskResponse);
+    }
+
+    public TaskRepo getTaskRepo() {
+        return taskRepo;
     }
 }
 
