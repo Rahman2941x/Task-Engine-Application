@@ -12,6 +12,7 @@ import com.taskengine.taskengine_task_service.model.Task;
 import com.taskengine.taskengine_task_service.model.TaskStatus;
 import com.taskengine.taskengine_task_service.model.TaskType;
 import com.taskengine.taskengine_task_service.repository.TaskRepo;
+import com.taskengine.taskengine_task_service.utils.MqTaskProducerUtil;
 import com.taskengine.taskengine_task_service.utils.NullCheckUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,26 +54,13 @@ public class TaskService {
     @Autowired
     ProjectClient projectClient;
 
-    @Value("${RABBITMQ_EXCHANGE}")
-    private String exchange;
-
-    @Value("${RABBITMQ_PROJECT_TASK_QUEUE}")
-    private String queue;
-
-    @Value("${RABBITMQ_ROUTING_KEY}")
-    private String routingKey;
-
     @Autowired
-    private RabbitTemplate rabbitTemplate;
+    private MqTaskProducerUtil mqTaskProducerUtil;
 
-    @Autowired
-    private RabbitMqPropertiesConfig rabbit;
 
     private static final Logger logger=LoggerFactory.getLogger(TaskService.class);
 
-    public void send (TaskStatusDTO DtO){
-        rabbitTemplate.convertAndSend(DtO);
-    }
+
 
 
     public ResponseEntity<Page<Task>> getAllTaskDetails(int size, int page) {
@@ -230,6 +218,8 @@ public class TaskService {
         task.setStatus(TaskStatus.INPROGRESS);
         task.setUserAccepted(true);
         taskRepo.save(task);
+
+        mqTaskProducerUtil.sendTaskUpdate(new ProjectTaskDTO(task.getId(),task.getProjectId(),task.getStatus()));
 
         return ResponseEntity.status(HttpStatus.ACCEPTED).body(new ResponseDTO<>(HttpStatus.ACCEPTED.value(), Constant.TASK_CLAIMED + loginUser()));
 
@@ -565,6 +555,7 @@ public class TaskService {
         List<ProjectTaskDTO> projectTask=tasks.stream()
                 .map(task->new ProjectTaskDTO(
                         task.getId(),
+                        task.getProjectId(),
                         task.getStatus()
                 )).toList();
 

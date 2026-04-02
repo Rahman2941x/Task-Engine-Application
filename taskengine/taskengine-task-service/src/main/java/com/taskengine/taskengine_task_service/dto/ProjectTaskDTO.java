@@ -4,6 +4,7 @@ import com.taskengine.taskengine_task_service.model.TaskStatus;
 
 public record ProjectTaskDTO(
         Long taskId,
+        Long projectId,
         TaskStatus status
 ) {
 }
