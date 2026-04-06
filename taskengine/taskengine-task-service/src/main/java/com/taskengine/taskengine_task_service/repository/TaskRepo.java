@@ -18,4 +18,6 @@ public interface TaskRepo extends JpaRepository<Task,Long> {
     List<Task> findByisActiveTrueAndStatusNotIn(List<TaskStatus> taskStatus);
 
     List<Task> findAllByIdInAndIsActiveTrueAndEndDateIsNotNull(List<Long> id);
+
+    List<Task> findAllByIdInAndIsActiveTrue(List<Long> ids);
 }

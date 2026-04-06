@@ -1,4 +1,4 @@
-package com.taskengine.taskengine_task_service.configuration;
+package taskengine.taskengine_project_service.configuration;
 
 import org.springframework.amqp.core.Binding;
 import org.springframework.amqp.core.BindingBuilder;
@@ -15,67 +15,40 @@ import org.springframework.context.annotation.Configuration;
 import java.util.HashMap;
 import java.util.Map;
 
+
 @Configuration
 @ConfigurationProperties(prefix = "rabbitmq")
 public class RabbitMqPropertiesConfig {
 
-    private String exchange;
-    private String queue;
-    private String routingKey;
-
-
-    public String getExchange() {
-        return exchange;
-    }
-
-    public void setExchange(String exchange) {
-        this.exchange = exchange;
-    }
-
-    public String getQueue() {
-        return queue;
-    }
-
-    public void setQueue(String queue) {
-        this.queue = queue;
-    }
-
-    public String getRoutingKey() {
-        return routingKey;
-    }
-
-    public void setRoutingKey(String routingKey) {
-        this.routingKey = routingKey;
-    }
-
+    private  String queue;
+    private  String exchange;
+    private  String routingKey;
 
     @Bean
     public RabbitTemplate rabbitTemplate(ConnectionFactory connectionFactory,
                                          MessageConverter messageConverter){
-
-        RabbitTemplate rabbitTemplate= new RabbitTemplate(connectionFactory);
+        RabbitTemplate rabbitTemplate=new RabbitTemplate(connectionFactory);
         rabbitTemplate.setMessageConverter(messageConverter);
         rabbitTemplate.setReplyTimeout(10000);
-
         return rabbitTemplate;
     }
 
     @Bean
-    public Queue queue(){
-        Map<String ,Object> args=new HashMap<>();
-        args.put("x-message-ttl",60000);
-        args.put("x-dead-letter-exchange", "dlx.exchange");
-        args.put("x-dead-letter-routing-key", "dlx.routing");
-        return new Queue(
-                queue,
-                true,
-                false,
-                false,
-                args
-        );
+    public MessageConverter messageConverter(){
+        return new Jackson2JsonMessageConverter();
     }
 
-    //Producer Require only exchange
+    @Bean
+    public Queue queue(){
+        Map<String, Object> args = new HashMap<>();
+
+        // 🔥 Send failed messages to DLQ
+        args.put("x-dead-letter-exchange", "dlx.exchange");
+        args.put("x-dead-letter-routing-key", "dlx.routing");
+
+        return new Queue(queue, true, false, false, args);
+    }
+
     @Bean
     public TopicExchange exchange(){
         return new TopicExchange(exchange);
@@ -86,8 +59,45 @@ public class RabbitMqPropertiesConfig {
         return BindingBuilder.bind(queue()).to(exchange()).with(routingKey);
     }
 
+
     @Bean
-    public MessageConverter messageConverter(){
-        return  new Jackson2JsonMessageConverter();
+    public Queue deadLetterQueue() {
+        return new Queue("dlq.queue");
+    }
+
+    @Bean
+    public TopicExchange deadLetterExchange() {
+        return new TopicExchange("dlx.exchange");
+    }
+
+    @Bean
+    public Binding dlqBinding() {
+        return BindingBuilder
+                .bind(deadLetterQueue())
+                .to(deadLetterExchange())
+                .with("dlx.routing");}
+
+    public String getQueue() {
+        return queue;
+    }
+
+    public void setQueue(String queue) {
+        this.queue = queue;
+    }
+
+    public String getExchange() {
+        return exchange;
+    }
+
+    public void setExchange(String exchange) {
+        this.exchange = exchange;
+    }
+
+    public String getRoutingKey() {
+        return routingKey;
+    }
+
+    public void setRoutingKey(String routingKey) {
+        this.routingKey = routingKey;
     }
 }

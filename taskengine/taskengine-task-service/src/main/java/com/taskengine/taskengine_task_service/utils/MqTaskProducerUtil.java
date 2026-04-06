@@ -16,8 +16,6 @@ public class MqTaskProducerUtil {
     @Value("${RABBITMQ_PROJECT_TASK_QUEUE}")
     private String queue;
 
-    @Value("${RABBITMQ_ROUTING_KEY}")
-    private String routingKey;
 
     @Autowired
     private RabbitTemplate rabbitTemplate;

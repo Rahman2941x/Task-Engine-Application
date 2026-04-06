@@ -35,6 +35,7 @@ public class Project {
             orphanRemoval = true)
     @JsonManagedReference
     private List<ProjectTask> projectTask;
+
     private Boolean isActive;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

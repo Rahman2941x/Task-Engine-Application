@@ -54,8 +54,9 @@ public class TaskService {
     @Autowired
     ProjectClient projectClient;
 
+
     @Autowired
-    private MqTaskProducerUtil mqTaskProducerUtil;
+    MqTaskProducerUtil mqTaskProducerUtil;
 
 
     private static final Logger logger=LoggerFactory.getLogger(TaskService.class);
@@ -154,6 +155,11 @@ public class TaskService {
 
         taskRepo.save(task);
 
+        logger.info("newly generated Task id:: {} for task name :: {}",task.getId(),task.getName());
+        List<Long> taskId=List.of(task.getId());
+
+        ResponseDTO<?> addTaskToProject = projectClient.addTaskToProject(taskId,task.getProjectId());
+
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(new ResponseDTO<>(LocalDateTime.now(),
                         HttpStatus.CREATED.value(),
@@ -219,7 +225,6 @@ public class TaskService {
         task.setUserAccepted(true);
         taskRepo.save(task);
 
-        mqTaskProducerUtil.sendTaskUpdate(new ProjectTaskDTO(task.getId(),task.getProjectId(),task.getStatus()));
 
         return ResponseEntity.status(HttpStatus.ACCEPTED).body(new ResponseDTO<>(HttpStatus.ACCEPTED.value(), Constant.TASK_CLAIMED + loginUser()));
 
@@ -320,6 +325,15 @@ public class TaskService {
         if (StringUtils.hasText(taskStatus.remark())) task.setRemark(taskStatus.remark());
         task.setUpdatedBy(loginUser);
         taskRepo.save(task);
+
+        ProjectTaskDTO projectTaskDTO=new ProjectTaskDTO(task.getId(),task.getProjectId(),task.getStatus());
+
+        //SendTaskStatusToProject
+        if(task.getId()!=null && task.getProjectId()!=null && task.getStatus()!=null){
+            mqTaskProducerUtil.sendTaskUpdate(projectTaskDTO);
+        }
+
+
         return ResponseEntity.status(HttpStatus.ACCEPTED)
                 .body(new ResponseDTO<>(HttpStatus.ACCEPTED.value(), Constant.TASK_STATUS+ newStatus));
     }
@@ -539,7 +553,7 @@ public class TaskService {
 
 
     public ResponseDTO<ProjectTaskResponse> getProjectTaskList(List<Long> ids) {
-        List<Task> tasks=taskRepo.findAllByIdInAndIsActiveTrueAndEndDateIsNotNull(ids);
+        List<Task> tasks=taskRepo.findAllByIdInAndIsActiveTrue(ids);
 
         Map<Long,Task> taskMap =tasks.stream().collect(Collectors.toMap(
                 Task::getId,

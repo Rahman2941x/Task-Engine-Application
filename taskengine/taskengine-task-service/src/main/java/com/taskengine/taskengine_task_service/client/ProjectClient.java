@@ -5,9 +5,9 @@ import com.taskengine.taskengine_task_service.dto.GetProjectStatusActiveUserTask
 import com.taskengine.taskengine_task_service.dto.ResponseDTO;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 
 
 @FeignClient(
@@ -19,4 +19,8 @@ public interface ProjectClient {
 
     @GetMapping("/project/api/v1/check-Project/active/user/task/id/{id}")
     public ResponseDTO<GetProjectStatusActiveUserTaskDTO> getProjectStatusActiveUserTask(@PathVariable Long id);
+
+
+    @PutMapping("/project/api/v1/add-project/task/id/{id}")
+    public ResponseDTO<?> addTaskToProject(@RequestBody List<Long> tasks, @PathVariable Long id);
 }

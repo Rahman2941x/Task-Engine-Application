@@ -203,13 +203,12 @@ public class ProjectService {
 
     }
 
-    public ResponseEntity<ResponseDTO<?>> addTaskToProject(Long id, List<Long> tasks) {
+    public ResponseDTO<?> addTaskToProject(Long id, List<Long> tasks) {
         Project project = projectRepo.findById(id).orElseThrow(() -> new RuntimeException("Project id not found::" + id));
 
         if (tasks == null || tasks.isEmpty()) {
-            return ResponseEntity.badRequest()
-                    .body(new ResponseDTO<>(HttpStatus.BAD_REQUEST.value(),
-                            "Task List is Empty"));
+            return new ResponseDTO<>(HttpStatus.BAD_REQUEST.value(),
+                            "Task List is Empty");
         }
 
         List<ProjectTask> existingProjectTasks = project.getProjectTask();
@@ -234,13 +233,11 @@ public class ProjectService {
             project.setProjectTask(existingProjectTasks);
             projectRepo.save(project);
 
-            return ResponseEntity
-                    .ok(new ResponseDTO<>(HttpStatus.OK.value(),
-                            "new Task has been added to project:: " + tasks));
+            return new ResponseDTO<>(HttpStatus.OK.value(),
+                            "new Task has been added to project:: " + tasks);
         }
-        return ResponseEntity
-                .ok(new ResponseDTO<>(HttpStatus.OK.value(),
-                        "Task Already available in project"));
+        return new ResponseDTO<>(HttpStatus.OK.value(),
+                        "Task Already available in project");
 
     }
 

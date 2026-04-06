@@ -1,6 +1,14 @@
 server:
   port: 8082
 
+
+
+
+rabbitmq:
+  exchange: ${RABBITMQ_EXCHANGE}
+  queue: ${RABBITMQ_PROJECT_TASK_QUEUE}
+  routingKey: ${RABBITMQ_ROUTING_KEY}
+
 eureka:
   instance:
     prefer-ip-address: true
@@ -11,6 +19,11 @@ eureka:
 spring:
   application:
     name: taskengine-project-service
+
+  rabbitmq:
+    listener:
+      simple:
+        default-requeue-rejected: false
 
   jackson:
     deserialization:

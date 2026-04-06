@@ -37,8 +37,8 @@ public class ProjectController {
         return service.addUserToProject(newUser,id);
     }
 
-    @PatchMapping("/add-project/task/id/{id}")
-    public ResponseEntity<ResponseDTO<?>> addTaskToProject(@RequestBody List<Long> tasks,@PathVariable Long id){
+    @PutMapping("/add-project/task/id/{id}")
+    public ResponseDTO<?> addTaskToProject(@RequestBody List<Long> tasks,@PathVariable Long id){
         return service.addTaskToProject(id,tasks);
     }
 

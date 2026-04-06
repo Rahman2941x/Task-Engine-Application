@@ -14,7 +14,7 @@ public class ProjectMapper {
         List<ProjectTaskDTO> taskDTO= Optional.ofNullable(project.getProjectTask())
                 .orElse(Collections.emptyList())
                 .stream()
-                .map(task->new ProjectTaskDTO(task.getTaskId(),task.getStatus()))
+                .map(task->new ProjectTaskDTO(task.getTaskId(),task.getId(),task.getStatus()))
                 .toList();
 
         return new ProjectResponseDTO(
