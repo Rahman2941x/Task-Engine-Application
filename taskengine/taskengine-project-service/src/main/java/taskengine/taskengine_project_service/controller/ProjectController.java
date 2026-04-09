@@ -47,5 +47,10 @@ public class ProjectController {
         return service.getStatusActiveUserTask(id);
     }
 
+    @DeleteMapping("/delete-project/id/{id}")
+    public ResponseDTO<?> deleteProject(@PathVariable Long id){
+        return service.deleteProjectById(id);
+    }
+
 
 }

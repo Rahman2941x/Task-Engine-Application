@@ -2,12 +2,14 @@ server:
   port: 8082
 
 
-
-
 rabbitmq:
   exchange: ${RABBITMQ_EXCHANGE}
-  queue: ${RABBITMQ_PROJECT_TASK_QUEUE}
-  routingKey: ${RABBITMQ_ROUTING_KEY}
+  task-project:
+    queue: ${RABBITMQ_TASK_PROJECT_QUEUE}
+    routing-key: ${RABBITMQ_ROUTING_KEY}
+  project-task:
+    queue: ${RABBITMQ_PROJECT_TASK_QUEUE}
+    routing-key: ${RABBITMQ_ROUTING_PROJECT_KEY}
 
 eureka:
   instance:
@@ -46,7 +48,7 @@ spring:
             authorization-grant-type: client_credentials
             client-authentication-method: client_secret_basic
             #client-authentication-method: client_secret_post
-            scope: read ,write
+            scope: read,write
         provider:
           internal-provider:
             token-uri: http://localhost:8080/auth/api/v1/oauth/token

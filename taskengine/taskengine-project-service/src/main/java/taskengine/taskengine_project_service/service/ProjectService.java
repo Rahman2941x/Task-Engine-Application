@@ -258,4 +258,12 @@ public class ProjectService {
 
         return new ResponseDTO<>(200,responseDTO);
     }
+
+    public ResponseDTO<?> deleteProjectById(Long id) {
+        Project project = projectRepo.findById(id).orElseThrow(() -> new RuntimeException("Project id not found::" + id));
+
+        projectRepo.deleteById(id);
+
+        return new ResponseDTO<>(200,"Project has been deleted");
+    }
 }

@@ -5,7 +5,8 @@ import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-import taskengine.taskengine_project_service.configuration.RabbitMqPropertiesConfig;
+import taskengine.taskengine_project_service.configuration.RabbitMqConfig;
+import taskengine.taskengine_project_service.configuration.RabbitMqProperties;
 import taskengine.taskengine_project_service.dto.ProjectTaskDTO;
 import taskengine.taskengine_project_service.entity.Project;
 import taskengine.taskengine_project_service.entity.ProjectTask;
@@ -18,14 +19,12 @@ import java.util.logging.Logger;
 @Component
 public class taskListener {
 
-    @Autowired
-    private RabbitMqPropertiesConfig props;
 
     @Autowired
     private ProjectRepo repo;
 
 
-    @RabbitListener(queues ="${RABBITMQ_PROJECT_TASK_QUEUE}")
+    @RabbitListener(queues ="${rabbitmq.task-project.queue}")
     @Transactional
     public  void taskStatusConsumer(ProjectTaskDTO taskDTO) {
         if (taskDTO == null) {

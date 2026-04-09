@@ -1,29 +1,33 @@
 package com.taskengine.taskengine_task_service.utils;
 
-import com.taskengine.taskengine_task_service.configuration.RabbitMqPropertiesConfig;
+import com.taskengine.taskengine_task_service.configuration.RabbitMqProperties;
 import com.taskengine.taskengine_task_service.dto.ProjectTaskDTO;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
 public class MqTaskProducerUtil {
 
-    @Value("${RABBITMQ_EXCHANGE}")
-    private String exchange;
+    private final RabbitTemplate rabbitTemplate;
+    private final RabbitMqProperties rabbitMqProperties;
 
-    @Value("${RABBITMQ_PROJECT_TASK_QUEUE}")
-    private String queue;
+    public MqTaskProducerUtil(RabbitTemplate rabbitTemplate, RabbitMqProperties rabbitMqProperties) {
+        this.rabbitTemplate = rabbitTemplate;
+        this.rabbitMqProperties = rabbitMqProperties;
+    }
 
+    public void sendTaskToProject(ProjectTaskDTO projectTaskDTO){
+        rabbitTemplate.convertAndSend(
+                rabbitMqProperties.getExchange(),
+                rabbitMqProperties.getTaskProject().getRoutingKey(),
+                projectTaskDTO);
+    }
 
-    @Autowired
-    private RabbitTemplate rabbitTemplate;
-
-    @Autowired
-    private RabbitMqPropertiesConfig rabbitProps;
-
-    public void sendTaskUpdate(ProjectTaskDTO projectTaskDTO){
-        rabbitTemplate.convertAndSend(exchange,rabbitProps.getRoutingKey(),projectTaskDTO);
+    public void sendProjectToTask(ProjectTaskDTO projectTaskDTO) {
+        rabbitTemplate.convertAndSend(
+                rabbitMqProperties.getExchange(),
+                rabbitMqProperties.getProjectTask().getRoutingKey(),
+                projectTaskDTO
+        );
     }
 }
