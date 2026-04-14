@@ -135,7 +135,7 @@ public class ProjectService {
 
         if (!project.getActive()) {
             return ResponseEntity.ok(new ResponseDTO<>(200,
-                    "project is not Active" + responseDTO));
+                    "project is not Active Project id" + id));
         }
         return ResponseEntity.ok(new ResponseDTO<>(200, responseDTO));
     }

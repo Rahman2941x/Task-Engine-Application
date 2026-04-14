@@ -1,13 +1,13 @@
 package com.taskengine.taskengine_task_service;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class TaskengineTaskServiceApplicationTests {
+public class TaskengineTaskServiceApplicationTests {
 
 	@Test
-	void contextLoads() {
+    public void contextLoads() {
 	}
 
 }
