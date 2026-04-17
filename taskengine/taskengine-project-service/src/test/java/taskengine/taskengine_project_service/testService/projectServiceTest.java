@@ -1,20 +1,15 @@
-package taskengine.taskengine_project_service;
+package taskengine.taskengine_project_service.testService;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.expression.spel.ast.OpAnd;
 import org.springframework.http.ResponseEntity;
-import taskengine.taskengine_project_service.dto.ProjectResponseDTO;
 import taskengine.taskengine_project_service.dto.ResponseDTO;
 import taskengine.taskengine_project_service.entity.Project;
 import taskengine.taskengine_project_service.repository.ProjectRepo;
 import taskengine.taskengine_project_service.service.ProjectService;
-import taskengine.taskengine_project_service.utils.ProjectMapper;
 
 import java.util.Optional;
 
@@ -74,7 +69,6 @@ public class projectServiceTest {
         RuntimeException exception =assertThrows(RuntimeException.class,()->{
             projectService.getProjectById(1l);
         });
-
         assertTrue(exception.toString().contains("Project id not found::"+1L));
     }
 

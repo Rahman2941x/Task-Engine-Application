@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleException(Exception ex){
         ErrorResponse response =new ErrorResponse(
                 HttpStatus.EXPECTATION_FAILED.value(),
@@ -22,4 +23,13 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(response);
     }
 
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<ErrorResponse> HandleRunTimeException(RuntimeException ex){
+        ErrorResponse response= new ErrorResponse(
+                HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                "Something went wrong" +"\n"+ex.getMessage()
+        );
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+
+    }
 }
