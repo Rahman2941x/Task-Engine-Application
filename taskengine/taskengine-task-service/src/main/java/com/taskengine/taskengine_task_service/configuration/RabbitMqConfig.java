@@ -51,6 +51,7 @@ public class RabbitMqConfig {
                 .to(exchange)
                 .with(rabbitMqProps.getProjectTask().getRoutingKey())
                 .noargs();
+
     }
 
     // Task → Project
